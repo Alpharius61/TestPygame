@@ -21,6 +21,12 @@ class Game :
         player_position = tmxData.get_object_by_name("Player")
         self.player = Player(player_position.x,player_position.y)
 
+        # générer les zones interdite (collision)
+        self.walls = []
+
+        for object in tmxData.objects :
+            if object.type == 'collision' :
+                self.walls.append(pygame.Rect(object.x , object.y , object.width, object.height))
 
         # dessiner le gp de calques
         self.group = pyscroll.PyscrollGroup(map_layer = mapLayer, default_layer = 3)
@@ -49,6 +55,13 @@ class Game :
         elif pressed[pygame.K_RIGHT]:
             self.player.moveRight()
             self.player.changeAnimation("right")
+
+    def update(self):
+        self.group.update()
+        
+        # vérification des collision
+        for sprite in self.group.sprites():
+            if sprite.feet.collidelist(self.walls)
 
     def run(self) :
         #  Reglage des FPS
