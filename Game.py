@@ -61,7 +61,10 @@ class Game :
         
         # vérification des collision
         for sprite in self.group.sprites():
-            if sprite.feet.collidelist(self.walls)
+            if sprite.feet.collidelist(self.walls) > -1:
+                sprite.moveBack()
+
+
 
     def run(self) :
         #  Reglage des FPS
@@ -70,8 +73,9 @@ class Game :
         # boucle du jeu (maintien de la fenêtre plus quitter)
         running = True
         while running == True :
+            self.player.saveLocation()
             self.handleInput()
-            self.group.update()
+            self.update()
             self.group.center(self.player.rect.center)
             self.group.draw(self.screen)
             pygame.display.flip()
