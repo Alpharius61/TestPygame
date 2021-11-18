@@ -29,8 +29,14 @@ class Game :
                 self.walls.append(pygame.Rect(object.x , object.y , object.width, object.height))
 
         # dessiner le gp de calques
-        self.group = pyscroll.PyscrollGroup(map_layer = mapLayer, default_layer = 3)
+        self.group = pyscroll.PyscrollGroup(map_layer = mapLayer, default_layer = 5)
         self.group.add(self.player)
+
+
+
+        # definir le rectangle de collision pour entrer dans la maison
+        enterHouse= tmxData.get_object_by_name("enterHouse")
+        self.enterHouseRect = pygame.rect(enterHouse.x , enterHouse.y, enterHouse.width, enterHouse.height)
 
     def handleInput(self):
 
@@ -58,12 +64,41 @@ class Game :
 
     def update(self):
         self.group.update()
-        
+        # vérification de l'entré dans la maison
+        if self.player.feet.colliderect(self.enterHouseRect):
+            self.switchHouse()
         # vérification des collision
         for sprite in self.group.sprites():
             if sprite.feet.collidelist(self.walls) > -1:
                 sprite.moveBack()
 
+    def switchHouse(self):
+        # charger carte (tmx)
+        tmxData = pytmx.util_pygame.load_pygame('House.tmx')
+        mapData = pyscroll.data.TiledMapData(tmxData)
+        mapLayer = pyscroll.orthographic.BufferedRenderer(mapData, self.screen.get_size())
+        mapLayer.zoom = 2
+
+        #  generer un joueur
+        player_position = tmxData.get_object_by_name("Player")
+        self.player = Player(player_position.x,player_position.y)
+
+        # générer les zones interdite (collision)
+        self.walls = []
+
+        for object in tmxData.objects :
+            if object.type == 'collision' :
+                self.walls.append(pygame.Rect(object.x , object.y , object.width, object.height))
+
+        # dessiner le gp de calques
+        self.group = pyscroll.PyscrollGroup(map_layer = mapLayer, default_layer = 5)
+        self.group.add(self.player)
+
+
+
+        # definir le rectangle de collision pour entrer dans la maison
+        enterHouse= tmxData.get_object_by_name("enterHouse")
+        self.enterHouseRect = pygame.rect(enterHouse.x , enterHouse.y, enterHouse.width, enterHouse.height)
 
 
     def run(self) :
